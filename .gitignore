@@ -1,0 +1,6 @@
+cleanWiki.txt
+wiki.xml
+.vscode/
+node_modules/
+main
+temp.*
