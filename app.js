@@ -6,17 +6,19 @@ const start = process.hrtime()
 rl.on('line', async (line, lineCount, byteCount) => {
 	line = line.trim()
 
-	if (line[0] == '{' || line[0] == '<' || line[0] == '|' || line[0] == '*') return
+	if (line.match(/^\s*(\{|\}|\<|\||\*|\;|\[|File\:|bar\:)/)) return
+	line = line.replace(/\&.*\;/ig, ' ')
+	line = line.replace(/(\(|\{).*(\)|\}|\n)/g, '')
+	line = line.replace(/'''/g, '')
+	line = line.replace(/\=*/g, '')
+	line = line.toLowerCase()
+	if (line.length < 3) return
+
 	await fs.appendFile('./cleanWiki.txt', line)
 
 	if (lineCount % 100000 == 0) {
 		console.log(`${lineCount}: ${lineCount / process.hrtime(start)[0]} lines/sec`)
 	}
 })
-rl.on('error', (err) => {
-	console.error(err)
-})
-rl.on('end', () => {
-	console.log(data)
-	fs.writeFile('./result.json', JSON.stringify(data))
-})
+
+rl.on('error', console.error)

@@ -23,3 +23,4 @@ while read -r filename event; do
 done
 
 # gcc main.c -o main.c.compiled; ./main.c.compiled
+# gcc temp.c -o temp.c.compiled; ./temp.c.compiled
