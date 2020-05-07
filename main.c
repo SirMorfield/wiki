@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 struct Word {
-    int usages;
+    unsigned long long usages;
     char *word;
 };
 
@@ -123,7 +123,7 @@ void main(int argc, char *argv[]) {
 
     for (unsigned long long i = 0; i < numWords; i++) {
         // printf("%d %s\n", (words + i)->usages, (words + i)->word);
-        fprintf(output, "%d %s\n", (words + i)->usages, (words + i)->word);
+        fprintf(output, "%lld %s\n", (words + i)->usages, (words + i)->word);
     }
     fclose(output);
 
