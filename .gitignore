@@ -6,3 +6,5 @@ main
 temp.*
 outputs/
 log*.txt
+c
+data/
