@@ -1,4 +1,3 @@
-#include <ctype.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,58 +5,82 @@
 #include <string.h>
 #include <unistd.h>
 
-#define BLOCKSIZE 10
+#define BLOCKSIZE 6
 
-char* split_in(char* file_name, char seperator, size_t offset) {
+long split_in(char*** strings, char* file_name, char seperator) {
     int fd = open(file_name, O_RDONLY);
-    if (fd < 0) return NULL;
+    if (fd < 0) return -1;
+    size_t offset = 0;
     size_t length = 0;
-    size_t buf_size = 0;
     ssize_t bytes_read;
     size_t words_read = 0;
     bool reached_end = false;
-    char** strings = malloc(0 * sizeof(char*));
-    char* read_buffer = malloc(BLOCKSIZE * sizeof(char));
-
+    *strings = malloc(0 * sizeof(char*));
+    char* read_buffer = malloc(0 * sizeof(char));
     while (1) {
-        bytes_read = pread(fd, read_buffer, BLOCKSIZE, offset);
-        if (bytes_read < BLOCKSIZE) reached_end = true;
+        ssize_t length = -1;
+        size_t buf_size = 0;
+        size_t total_bytes_read = 0;
+        read_buffer = malloc(buf_size * sizeof(char));
+        if (read_buffer == NULL) return -1;
 
-        ssize_t last_seperator_index = -1;
-        if (!reached_end) {
-            for (ssize_t i = bytes_read - 1; i >= 0; i--) {
+        while (1) {
+            buf_size += BLOCKSIZE;
+            read_buffer = realloc(read_buffer, buf_size * sizeof(char));
+            if (read_buffer == NULL) return -1;
+
+            bytes_read = pread(fd, read_buffer + total_bytes_read, BLOCKSIZE, offset);
+            total_bytes_read += bytes_read;
+
+            if (bytes_read < BLOCKSIZE) {
+                reached_end = true;
+                length = total_bytes_read;
+                break;
+            }
+
+            for (ssize_t i = total_bytes_read - 1; i >= (total_bytes_read - bytes_read); i--) {
                 if (read_buffer[i] == seperator) {
-                    last_seperator_index = i;
+                    length = i;
                     break;
                 }
             }
-            if (last_seperator_index == -1) return NULL;
-        } else {
-            last_seperator_index = bytes_read - 1;
-        }
 
-        size_t last_index = read_buffer[0] == seperator ? 1 : 0;
-        for (size_t i = last_index + 1; i <= last_seperator_index; i++) {
-            if (read_buffer[i] == seperator) {
-                strings = realloc(strings, (words_read + 1) * sizeof(char*));
-                size_t string_size = i - last_index;
-
-                strings[words_read] = malloc((string_size + 1) * sizeof(char));
-                memcpy(strings[words_read], read_buffer + last_index, string_size);
-                strings[words_read][string_size] = '\0';
-                words_read++;
-                last_index = i + 1;
+            if (length != -1) {
+                offset += (total_bytes_read - length) + 1;
+                break;
+            } else {
+                offset += bytes_read;
             }
         }
-        offset += last_seperator_index;
+
+        printf("<%s>", read_buffer);
+        printf("%ld\n", length);
+        ssize_t prev_seperator_index = 0;
+        for (size_t i = 1; i < length; i++) {
+            if (read_buffer[i] == seperator || i == (length - 1)) {
+                *strings = realloc(*strings, (words_read + 1) * sizeof(char*));
+                size_t string_size = (i - prev_seperator_index) + 1;
+
+                (*strings)[words_read] = malloc((string_size + 1) * sizeof(char));
+                memcpy((*strings)[words_read], read_buffer + prev_seperator_index, string_size);
+                (*strings)[words_read][string_size] = '\0';
+                words_read++;
+                prev_seperator_index = i + 1;
+            }
+        }
         if (reached_end) break;
     }
-    for (size_t i = 0; i < words_read; i++) {
-        printf("<%s>\n", strings[i]);
-    }
+    return words_read;
 }
 int main() {
-    split_in("data/test", ' ', 0);
-
-    // puts(strings);
+    char** strings;
+    long words_read = split_in(&strings, "data/test", ' ');
+    if (words_read > 0) {
+        printf("words_read %ld\n", words_read);
+        for (size_t i = 0; i < words_read; i++) {
+            printf("<%s>\n", strings[i]);
+        }
+    } else {
+        printf("err");
+    }
 }

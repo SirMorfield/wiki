@@ -7,22 +7,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "split_in.c"
+
 #define blockSize 4096
 struct Word {
     unsigned long usages;
     char *word;
 };
-
-int readDictionary(struct Word *words[], unsigned long *numWords) {
-    FILE *dictionary = fopen("data/dictionary.txt", "r");
-    char *line;
-    size_t len;
-    if (dictionary == NULL) return 1;
-
-    while (getline(&line, &len, dictionary) != -1) {
-    }
-    fclose(dictionary);
-}
 
 int main(int argc, char *argv[]) {
     char *uselessEndPtr;
@@ -32,6 +23,9 @@ int main(int argc, char *argv[]) {
     int fd = open(argv[4], O_RDONLY);
     long id = strtoll(argv[5], &uselessEndPtr, 10);
     if (fd < 0) return 1;
+
+    char **allowed_words;
+    split_in(&allowed_words, "data/dictionary.txt", '\n');
 
     unsigned long offset = fileStart;
     char *buf = (char *)malloc(blockSize * sizeof(char));
