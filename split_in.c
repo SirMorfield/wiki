@@ -35,3 +35,16 @@ ssize_t split_in(char*** items, char* file_name, char seperator) {
     free(buffer);
     return items_read;
 }
+
+// int main() {
+//     char** items;
+//     ssize_t items_read = split_in(&items, "data/test", ' ');
+//     if (items_read > 0) {
+//         printf("items_read %ld\n", items_read);
+//         for (size_t i = 0; i < items_read; i++) {
+//             printf("<%s> %ld\n", items[i], strlen(items[i]));
+//         }
+//     } else {
+//         printf("err");
+//     }
+// }
