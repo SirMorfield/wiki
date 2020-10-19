@@ -1,21 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   helpers.h                                          :+:    :+:            */
+/*   constants.h                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: joppe <joppe@student.codam.nl>               +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/10/19 15:44:32 by joppe         #+#    #+#                 */
-/*   Updated: 2020/10/19 20:29:09 by joppe         ########   odam.nl         */
+/*   Created: 2020/10/19 15:52:09 by joppe         #+#    #+#                 */
+/*   Updated: 2020/10/19 20:48:15 by joppe         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HELPERS_H
-# define HELPERS_H
-# include "constants.h"
+#ifndef CONSTANTS_H
+# define CONSTANTS_H
 
-void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset);
-char	*get_word(char *str, uint64_t *len);
-void	occurrences(int32_t fd, t_word *words, uint64_t num_words);
+#define BLOCKSIZE 4096
+#define DICTIONARY_PATH "data/en_alphabetically.txt"
+#define WIKI_PATH "data/cleanWikiShort.txt"
+#define LONGEST_EN_WORD 23
+
+typedef	struct	s_word
+{
+	char *word;
+	uint64_t len;
+	uint64_t occurrences;
+}				t_word;
 
 #endif

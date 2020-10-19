@@ -1,21 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   helpers.h                                          :+:    :+:            */
+/*   exit_error.c                                       :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: joppe <joppe@student.codam.nl>               +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/10/19 15:44:32 by joppe         #+#    #+#                 */
-/*   Updated: 2020/10/19 20:29:09 by joppe         ########   odam.nl         */
+/*   Created: 2020/10/19 15:54:21 by joppe         #+#    #+#                 */
+/*   Updated: 2020/10/19 20:33:25 by joppe         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HELPERS_H
-# define HELPERS_H
-# include "constants.h"
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 
-void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset);
-char	*get_word(char *str, uint64_t *len);
-void	occurrences(int32_t fd, t_word *words, uint64_t num_words);
-
-#endif
+void	exit_error(char *msg)
+{
+	printf("%s", msg);
+	printf("%s\n", strerror(errno));
+	exit(1);
+}

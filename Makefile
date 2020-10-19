@@ -6,7 +6,7 @@
 #    By: joppe <joppe@student.codam.nl>               +#+                      #
 #                                                    +#+                       #
 #    Created: 2020/08/23 17:53:14 by joppe         #+#    #+#                  #
-#    Updated: 2020/10/19 15:41:30 by joppe         ########   odam.nl          #
+#    Updated: 2020/10/19 20:18:13 by joppe         ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,22 +29,17 @@ OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.$(OBJ
 
 $(NAME): all
 
-.PHONY all
 all: directories $(OBJECTS)
 	$(CC) $(CFLAGS) -I ${HEADERDIR}/ $(OBJECTS) -o $(NAME) ${LIBS}
 
-.PHONY clean
 clean:
 	/bin/rm -rf $(BUILDDIR)/
 
-.PHONY fclean
 fclean: clean
 	/bin/rm -f $(NAME)
 
-.PHONY re
 re: fclean all
 
-.PHONY directories
 directories:
 	@mkdir -p $(BUILDDIR)
 

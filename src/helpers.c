@@ -6,7 +6,7 @@
 /*   By: joppe <joppe@student.codam.nl>               +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/10/19 15:44:18 by joppe         #+#    #+#                 */
-/*   Updated: 2020/10/19 15:48:27 by joppe         ########   odam.nl         */
+/*   Updated: 2020/10/19 20:44:38 by joppe         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "types.h"
+#include "helpers.h"
 #include "constants.h"
+#include "ft_string.h"
+#include "exit_error.h"
 
-void read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
+void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 {
 	int32_t bytes_read = pread(fd, buf, buf_size, *offset);
 	if (bytes_read <= 0)
@@ -32,7 +34,7 @@ void read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 	if ((uint64_t)bytes_read < buf_size)
 		last_space_i = (uint64_t)bytes_read;
 	else
-		last_space_i = ft_last_occurrence_i(buf, (uint64_t)bytes_read, ' '); // MORE
+		last_space_i = ft_strlast(buf, (uint64_t)bytes_read, ' '); // MORE
 	if (last_space_i == -1)
 	{
 		buf[0] = '\0';
@@ -42,50 +44,76 @@ void read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 	buf[last_space_i] = '\0';
 }
 
-char *get_word(char *str, uint64_t *len)
+char	*get_word(char *str, uint64_t *len)
 {
-	uint64_t i;
+	char	*start;
 
 	while (!ft_is_letter(*str))
 	{
 		if (*str == '\0')
+		{
+			*len = 0;
 			return (NULL);
-		*str++;
+		}
+		str++;
 	}
-	i = 1;
-	while (ft_is_letter(str[i]))
-		i++;
-	*len = i + 1;
-	return (res);
+	start = str;
+	*len = 1;
+	while (ft_is_letter(str[*len]))
+		(*len)++;
+	return (start);
 }
 
-uint64_t *occurrences(int32_t fd, char **words, uint64_t n_words)
+void	search_word(t_word *words, uint64_t num_words, char *potential_word, uint64_t potential_word_len)
 {
-	char **words = malloc(n_words * sizeof(char *));
-	char *buf = malloc(BLOCKSIZE * sizeof(char));
-	uint64_t offset_file = 0;
-	uint64_t offset_block = 0;
+	int64_t 	low;
+	int64_t 	high;
+	int64_t		mid;
+	int8_t		cmp;
 
-	while (true)
+	if (potential_word_len == 0)
+		return ;
+	low = 0;
+	high = (int64_t)num_words - 1;
+	while (low <= high)
 	{
-		read_until(fd, buf, BLOCKSIZE, &offset);
-		if (buf[0] == '\0')
-			break;
-		word_offset = 0;
+		mid = (low + high) / 2;
+		cmp = ft_strncmp(potential_word, words[mid].word, potential_word_len);
+		if (cmp < 0)
+			high = mid - 1;
+		else if (cmp > 0)
+			low = mid + 1;
+		else
+		{
+			words[mid].occurrences += 1;
+			return ;
+		}
+	}
+}
+
+void	occurrences(int32_t fd, t_word *words, uint64_t num_words)
+{
+	char		*buf;
+	uint64_t	file_offset;
+	uint64_t	buf_offset;
+	char		*potential_word;
+	uint64_t	potential_word_len;
+
+	buf = malloc(BLOCKSIZE * sizeof(char));
+	buf[0] = 'x';
+	file_offset = 0;
+	while (buf[0] != '\0')
+	{
+		read_until(fd, buf, BLOCKSIZE, &file_offset);
+		buf_offset = 0;
 		while (true)
+		{
+			potential_word = get_word(buf + buf_offset, &potential_word_len);
+			buf_offset += potential_word_len + 1;
+			if (potential_word == NULL)
+				break ;
+			search_word(words, num_words, potential_word, potential_word_len);
+		}
 	}
-
-	uint64_t i = 0;
-	while (i < n_words)
-	{
-		// printf("%lu\t\t<%s>\n", word_usages[i], words[i]);
-		free(words[i]);
-		i++;
-	}
-	free(words);
-	free(word_usages);
-
-	close(fd);
 	free(buf);
-	return (word_usages);
 }
