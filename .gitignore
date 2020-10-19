@@ -8,3 +8,4 @@ outputs/
 log*.txt
 c
 data/
+test*.*
