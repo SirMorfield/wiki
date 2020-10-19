@@ -6,7 +6,7 @@
 #    By: joppe <joppe@student.codam.nl>               +#+                      #
 #                                                    +#+                       #
 #    Created: 2020/08/23 17:53:14 by joppe         #+#    #+#                  #
-#    Updated: 2020/10/19 20:18:13 by joppe         ########   odam.nl          #
+#    Updated: 2020/10/19 21:17:40 by joppe         ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@
 NAME      	:= wiki
 
 CC          := gcc
-CFLAGS      := -Wall -Wextra -Werror -Wuninitialized
+CFLAGS      := -Wall -Wextra -Werror -Wuninitialized -O3
 
 HEADERDIR	:= includes
 SRCDIR      := src

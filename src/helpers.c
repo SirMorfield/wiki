@@ -6,7 +6,7 @@
 /*   By: joppe <joppe@student.codam.nl>               +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/10/19 15:44:18 by joppe         #+#    #+#                 */
-/*   Updated: 2020/10/19 20:44:38 by joppe         ########   odam.nl         */
+/*   Updated: 2020/10/19 21:18:51 by joppe         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "types.h"
 #include "helpers.h"
 #include "constants.h"
 #include "ft_string.h"
 #include "exit_error.h"
+
+int64_t	last_seperator(char *str, uint64_t len, char *seperators)
+{
+	uint64_t	seperator_i;
+
+	while (len > 0)
+	{
+		len--;
+		seperator_i = 0;
+		while (seperators[seperator_i] != '\0')
+		{
+			if (str[len] == seperators[seperator_i])
+				return (len);
+			seperator_i++;
+		}
+	}
+	return (-1);
+}
+
+clock_t g_prev_print = 0;
+
+void	print_progress(uint64_t offset)
+{
+	clock_t now = clock();
+	double time_spent = (double)(now - g_prev_print) / CLOCKS_PER_SEC;
+	if (time_spent > 3)
+	{
+		printf("Progress %lu MiB \n", offset / 1024 / 1024);
+		g_prev_print = now;
+	}
+}
 
 void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 {
@@ -34,7 +66,7 @@ void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 	if ((uint64_t)bytes_read < buf_size)
 		last_space_i = (uint64_t)bytes_read;
 	else
-		last_space_i = ft_strlast(buf, (uint64_t)bytes_read, ' '); // MORE
+		last_space_i = last_seperator(buf, (uint64_t)bytes_read, " ,.\n)-");
 	if (last_space_i == -1)
 	{
 		buf[0] = '\0';
@@ -42,6 +74,7 @@ void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 	}
 	*offset += last_space_i + 1;
 	buf[last_space_i] = '\0';
+	// print_progress(*offset);
 }
 
 char	*get_word(char *str, uint64_t *len)

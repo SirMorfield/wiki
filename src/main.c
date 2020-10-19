@@ -42,7 +42,7 @@ void	print_results(t_word *words, uint64_t num_words)
 
 	i = 0;
 	(void)num_words;
-	while (i < 20)
+	while (i < num_words)
 	{
 		word = words[i];
 		printf("%s", word.word);
