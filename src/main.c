@@ -29,8 +29,10 @@ t_word	*get_words(uint64_t *num_words)
 		(words[i]).word = ft_strdup(words_dictionary[i]);
 		(words[i]).len = ft_strlen(words_dictionary[i]);
 		(words[i]).occurrences = 0;
+		free(words_dictionary[i]);
 		i++;
 	}
+	free(words_dictionary);
 	return (words);
 }
 
@@ -45,14 +47,17 @@ void	print_results(t_word *words, uint64_t num_words)
 	while (i < num_words)
 	{
 		word = words[i];
-		printf("%s", word.word);
-		spaces = LONGEST_EN_WORD - word.len;
-		while (spaces > 0)
+		if (word.occurrences >= 1)
 		{
-			spaces--;
-			printf(" ");
+			printf("%s", word.word);
+			spaces = LONGEST_EN_WORD - word.len;
+			while (spaces > 0)
+			{
+				spaces--;
+				printf(" ");
+			}
+			printf("%lu\n", word.occurrences);
 		}
-		printf("%lu\n", word.occurrences);
 		i++;
 	}
 }

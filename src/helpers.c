@@ -6,7 +6,7 @@
 /*   By: joppe <joppe@student.codam.nl>               +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/10/19 15:44:18 by joppe         #+#    #+#                 */
-/*   Updated: 2020/10/19 21:18:51 by joppe         ########   odam.nl         */
+/*   Updated: 2020/10/21 17:42:59 by joppe         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,15 +74,21 @@ void	read_until(int32_t fd, char *buf, uint64_t buf_size, uint64_t *offset)
 	}
 	*offset += last_space_i + 1;
 	buf[last_space_i] = '\0';
-	// print_progress(*offset);
+	print_progress(*offset);
 }
 
-char	*get_word(char *str, uint64_t *len)
+bool	is_lowercase_letter(char c)
+{
+	return (c >= 'a' && c <= 'z');
+}
+
+char	*get_word(char *str, uint64_t *len, uint64_t *buf_offset)
 {
 	char	*start;
 
-	while (!ft_is_letter(*str))
+	while (!is_lowercase_letter(*str))
 	{
+		(*buf_offset)++;
 		if (*str == '\0')
 		{
 			*len = 0;
@@ -92,8 +98,9 @@ char	*get_word(char *str, uint64_t *len)
 	}
 	start = str;
 	*len = 1;
-	while (ft_is_letter(str[*len]))
+	while (is_lowercase_letter(str[*len]))
 		(*len)++;
+	(*buf_offset) += *len;
 	return (start);
 }
 
@@ -112,6 +119,8 @@ void	search_word(t_word *words, uint64_t num_words, char *potential_word, uint64
 	{
 		mid = (low + high) / 2;
 		cmp = ft_strncmp(potential_word, words[mid].word, potential_word_len);
+		if (cmp == 0 && words[mid].word[potential_word_len] != '\0')
+			cmp = -((int8_t)(words[mid].word[potential_word_len]));
 		if (cmp < 0)
 			high = mid - 1;
 		else if (cmp > 0)
@@ -141,8 +150,7 @@ void	occurrences(int32_t fd, t_word *words, uint64_t num_words)
 		buf_offset = 0;
 		while (true)
 		{
-			potential_word = get_word(buf + buf_offset, &potential_word_len);
-			buf_offset += potential_word_len + 1;
+			potential_word = get_word(buf + buf_offset, &potential_word_len, &buf_offset);
 			if (potential_word == NULL)
 				break ;
 			search_word(words, num_words, potential_word, potential_word_len);
